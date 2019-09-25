@@ -1,26 +1,13 @@
-onmessage = (e) => { load(e.data) }
-function load(e,proxy=false) {
-  let url = (proxy) ? e.proxy+e.url:e.url;
-  let xmlhttp = new XMLHttpRequest();
-  xmlhttp.responseType = e.type;
-  xmlhttp.onreadystatechange = function() {
-    if (this.readyState == 4) {
-      if (this.status == 200) {
-        e.response = xmlhttp.response;
-        postMessage(e);
-      } else if (this.status == 0) {
-        if ((typeof e.cors === "undefined") || (e.cors == false)) {
-          e.cors = true;
-          load(e,true)
-        }
-      }
-    }
-  };
-  xmlhttp.open("GET", url);
-  if (e.headers) {
-    for (i in e.headers) {
-      xmlhttp.setRequestHeader(e.headers[i][0],e.headers[i][1]);
-    }
+onmessage = async (e) => {
+  e.data.query = await fetch(e.data.url);
+  e.data.query = (await e.data.query.json()).query.pages;
+  postMessage(e.data);
+  while (typeof e.data.query.continue !== "undefined") {
+    let continuation = e.data.query.continue.continue.replace(/\|/g,"");
+    e.data.query = await fetch(e.data.url+"&"
+      +continuation+"="
+      +e.data.query.continue[continuation]);
+    e.data.query = (await e.data.query.json()).query.pages;
+    postMessage(e.data);
   }
-  xmlhttp.send();
 }
