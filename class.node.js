@@ -39,17 +39,17 @@ let TNode = class {
   build_url(type) {
     let url = {
       "categories":"generator=categories&titles="+this.name
-        +"&prop=info|pageviews&gcllimit=500&gclshow=!hidden",
+        +"&prop=info&gcllimit=500&gclshow=!hidden",
       "abstract":"prop=extracts&titles="+this.name
         +"&exintro=true&exlimit=1",
       "abstract-6":"titles="+this.name
         +"&prop=imageinfo&iiprop=url|mime",
       "categorymembers":"generator=categorymembers&gcmtitle="+this.name
-        +"&prop=info|pageviews&gcmlimit=500&gcmnamespace=0|14|6",
+        +"&prop=info&gcmlimit=500&gcmnamespace=0|14|6",
       "links":"generator=links&titles="+this.name
-        +"&prop=info|pageviews&gpllimit=500&gplnamespace=0|6",
+        +"&prop=info&gpllimit=500&gplnamespace=0|6",
       "linkshere":"generator=linkshere&titles="+this.name
-        +"&prop=info|pageviews&glhlimit=500&glhnamespace=0|6",
+        +"&prop=info&glhlimit=500&glhnamespace=0|6",
       "pageviews":"titles="+this.name+"&prop=pageviews"
     };
     return BASE_URL+url[type]+"&format=json&redirects&origin=*&utf8";
