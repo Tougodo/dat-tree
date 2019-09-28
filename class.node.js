@@ -7,7 +7,7 @@ let TNode = class {
       }
     }
     this.name = node.title;
-    this.pageid = node.pageid;
+    this.pageid = (node.pageid || 0);
     this.worker = worker;
     this.parent = parent;
     this.type = node.ns;
@@ -25,13 +25,16 @@ let TNode = class {
       this.setViews(node.pageviews);
     }
   }
-  addLink(target,type) { //links can be true (explicitely graphed) or false, ie stored for future match
+  addLink(target,id,type) { //links can be true (explicitely graphed) or false, ie stored for future match
+    this.links[target.name] = {id,type};
   }
   load(type) {
+    console.log(this);
     if (typeof this.loaded[type] === "undefined") {
       let url = ((type == "abstract") && (this.type == 6)) ? "abstract-6":type;
       url = this.build_url(url);
       this.worker.postMessage({name:this.name,type,url});
+      this.loaded[type] = true;
     } else {
       //utiliser le worker pour renvoyer l'info souhaitée au Tree
     }
@@ -57,6 +60,9 @@ let TNode = class {
   setViews(pageviews) {
     pageviews = Object.values(pageviews);
     this.views = pageviews.reduce((a,c) => a+c);
+  }
+  getLink(target) {
+    return (this.links[target] || false);
   }
 }
 export { TNode };

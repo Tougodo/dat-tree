@@ -6,10 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../style.css" />
     <link rel="stylesheet" href="style.css" />
-    <script src="https://d3js.org/d3.v4.min.js"></script>
-    <script src="class.url.js"></script>
-    <script src="class.tree.js"></script>
-    <script src="class.node.js"></script>
   </head>
   <body>
     <header><h1>Dat-Tree</h1><script src="../menu.js" id="menujs"></script></header>
@@ -19,15 +15,55 @@
           <input type="text" id="str_search">
           <input type="button" id="submit" value="Graph this">
       </form>
-    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"></svg>
-    <div id="info_tile"></div>
-    <script src="main.js"></script>
-    <script src="lang.js"></script>
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"></svg>
+      <div id="info_tile"></div>
     </main>
     <footer><a href="https://github.com/corbin-c/dat-tree" title="project dat-tree by corbin-c on Github">View code on Github</a>
       <form id="foot_menu" style="display:none;">
         <label for="k_factor">⇿</label><input id="k_factor" type="range" min="0.3" max="20" step="0.5">
       </form>
     </footer>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script type="module">
+import { Tree } from "./class.tree.js";
+import { Utils } from "./utils.js";
+import { Graph } from "./graph.js";
+Graph.init(d3);
+
+let forceWorker = new Worker("worker.force.js");
+forceWorker.onmessage = (event) => Graph.graph(event);
+
+let t = new Tree(forceWorker);
+Utils.changelang(t.setLang);
+
+document.getElementById("submit").addEventListener("click", (e) => {
+  document.querySelector("form").setAttribute("style","opacity: 0;");
+  document.querySelector("svg")
+    .setAttribute("style","display: block;");
+  document.querySelector("#foot_menu")
+    .setAttribute("style","display: flex;");
+  t.addNode(Utils.capitalize(document.getElementById("str_search").value));
+  let labels = document.getElementById("foot_menu")
+    .querySelectorAll("label");
+  for (let i in [...labels]) {
+    labels[i].addEventListener("click", function (e) {
+      e.target.nextSibling.classList.toggle("visible");
+    });
+  }
+  document.getElementById("k_factor")
+    .addEventListener("change", function(e){
+      Number(e.target.value);
+  });
+  Graph.svg.call(Graph.zoom_handler.transform, d3.zoomIdentity
+    .translate(
+      -Number(document.querySelector("svg")
+        .getBoundingClientRect().width)*200,
+      -Number(document.querySelector("svg")
+        .getBoundingClientRect().height)*200)
+    .scale(400)
+    );
+  t.loadNodes("categories");
+});
+    </script>
   </body>
 </html>
